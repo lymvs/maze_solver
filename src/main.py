@@ -4,7 +4,6 @@ from maze import Maze
 
 
 def main() -> None:
-    win = Window(800, 600)
 
     num_rows = 12
     num_cols = 16
