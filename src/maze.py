@@ -1,4 +1,5 @@
 import time
+import random
 
 from cell import Cell
 from gui import Window, Line
@@ -13,6 +14,7 @@ class Maze():
             cell_size_x,
             cell_size_y,
             win = None,
+            seed = None,
         ):
         self._cells = []
         self._x1 = x1
@@ -24,6 +26,9 @@ class Maze():
         self._win = win
         self._create_cells()
         self._break_entrance_and_exit()
+        self.seed = seed
+        if self.seed is not None:
+            random.seed(self.seed)
 
 
     def _create_cells(self):
@@ -61,3 +66,36 @@ class Maze():
         self._draw_cell(0, 0)
         self._cells[self._num_cols - 1][self._num_rows - 1].has_bottom_wall = False
         self._draw_cell(self._num_cols - 1, self._num_rows - 1)
+
+
+    def _break_walls_r(self, i, j):
+        self._cells[i][j].visited = True
+        while True:
+            neighbors = []
+            if i != self._num_rows - 1 and not self._cells[i+1][j].visited:
+                    neighbors.append((i+1, j))
+            if j != self._num_cols - 1 and not self._cells[i][j+1].visited:
+                    neighbors.append((i, j+1))
+            if i != 0 and not self._cells[i-1][j].visited:
+                    neighbors.append((i-1, j))
+            if j != 0 and not self._cells[i][j-1].visited:
+                    neighbors.append((i, j-1))
+            if len(neighbors) == 0:
+                self._draw_cell(i, j)
+                return
+            else:
+                next_cell = random.randrange(0, len(neighbors))
+                row, col = neighbors[next_cell]
+            if row == i + 1:
+                self._cells[i][j].has_bottom_wall = False
+                self._cells[row][col].has_top_wall = False
+            elif row == i - 1:
+                self._cells[i][j].has_top_wall = False
+                self._cells[row][col].has_bottom_wall = False
+            elif col == j + 1:
+                self._cells[i][j].has_right_wall = False
+                self._cells[row][col].has_left_wall = False
+            elif col == j - 1:
+                self._cells[i][j].has_left_wall = False
+                self._cells[row][col].has_right_wall = False
+            self._break_walls_r(row, col)
